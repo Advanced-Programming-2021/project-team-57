@@ -12,7 +12,7 @@ import controller.DataBase;
     private List<Score> allScores;		
     private List<MainDecks> allMainDecks;		
     private List<SideDecks> allSideDecks;		
-    private Deck 1..*;*/
+    private Deck;*/
 
 public User(){
 

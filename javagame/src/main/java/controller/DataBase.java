@@ -1,22 +1,33 @@
 ﻿package controller;
-
 import com.google.gson.Gson;
 import model.User;
-
-import java.io.File;
-import java.util.HashMap;
-import java.util.Locale;
+import java.io.*;
+import java.util.*;
 
 
 public class DataBase {
     HashMap<String, String> userlogin = new HashMap<String, String>();
 
-    public  void writeDataToFile() {
-        File userInformation = new File(new Gson().toJson(userlogin));
+    public void writeDataToFile(Object user) {
+        try {
+            FileWriter file = new FileWriter("user.json");
+            file.write(new Gson().toJson(user));
+            file.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     public void readDataFromFile() {
+        ArrayList<User> users = new ArrayList<>();
 
+        Gson gson = new Gson();
+        try (Reader reader = new FileReader("user.json")) {
+            User user = gson.fromJson(reader, User.class);
+            users.add(user);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     public void usersLogInUpdate(String command) {
@@ -82,5 +93,12 @@ public class DataBase {
         user.setUsername(usernameUpdate());
         user.setNickname(nicknameUpdate());
         user.setPassword(passwordUpdate());
+         if (isUserInfoValid) {
+        writeDataToFile(user);
+        }
+    }
+
+    public void isUserInfoValid() {
+
     }
 }

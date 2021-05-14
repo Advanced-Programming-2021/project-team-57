@@ -14,13 +14,19 @@ import controller.DataBase;
     private List<SideDecks> allSideDecks;		
     private Deck;*/
 
-public User(){
+    public User(String username, String nickname, String password, String scores) {
+        this.username = username;
+        this.nickname = nickname;
+        this.password = password;
+        this.scores = scores;
+    }
 
-    setUsername(username);
-    setPassword(password);
-    setNickname(nickname);
-}
-  public void setUsername(String username){
+    public User() {
+
+    }
+
+
+    public void setUsername(String username){
       this.username = username;
   }
   public void setPassword(String password){

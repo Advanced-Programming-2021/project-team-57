@@ -1,37 +1,54 @@
 ﻿package controller;
+
 import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import model.User;
-import java.io.*;
-import java.util.*;
+import view.LoginMenuView;
+
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.Reader;
+import java.lang.reflect.Type;
+import java.util.ArrayList;
+import java.util.HashMap;
 
 
 public class DataBase {
+    User currentUser = new User(); //should be deleted
     HashMap<String, String> userlogin = new HashMap<String, String>();
+    static ArrayList<User> allUsers = new ArrayList<User>();
+    Gson gson = new Gson();
 
     public void writeDataToFile(Object user) {
         try {
-            FileWriter file = new FileWriter("user.json");
-            file.write(new Gson().toJson(user));
-            file.close();
+            FileWriter userWrite = new FileWriter("user.json");
+            userWrite.write(gson.toJson(allUsers));
+            userWrite.close();
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
     public void readDataFromFile() {
-        ArrayList<User> users = new ArrayList<>();
-
-        Gson gson = new Gson();
         try (Reader reader = new FileReader("user.json")) {
-            User user = gson.fromJson(reader, User.class);
-            users.add(user);
+            Type listType = new TypeToken<ArrayList<User>>() {
+            }.getType();
+            allUsers = (gson.fromJson(reader, listType));
+
+
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
-    public void usersLogInUpdate(String command) {
-
+    public void usersLogInUpdate() {
+        createUser();
+        readDataFromFile();
+        if (userLoginInfoValidation() == 1) {
+            LoginMenuView loginMenuView = new LoginMenuView();
+            loginMenuView.userLoginSuccessMessage();
+        }
 
     }
 
@@ -54,21 +71,21 @@ public class DataBase {
 
 
     public String usernameUpdate() {
-        String username = userlogin.get("username");
-        return username;
+        return userlogin.get("username");
+
 
     }
 
 
     public String passwordUpdate() {
-        String password = userlogin.get("password");
-        return password;
+        return userlogin.get("password");
+
 
     }
 
     public String nicknameUpdate() {
-        String nickname = userlogin.get("nickname");
-        return nickname;
+        return userlogin.get("nickname");
+
     }
 
     public void userScoresUpdate() {
@@ -88,17 +105,77 @@ public class DataBase {
 
     }
 
-    public void createUser() {
+    public boolean isUserLoginCommandValid(String command) {
+        command = command.toLowerCase().replaceAll("\\s", "");
+        if (command.startsWith("userlogin") &&
+                (userlogin.containsKey("username")) &&
+                (userlogin.containsKey("password"))
+        ) {
+            return true;
+        } else {
+            return false;
+        }
+
+    }
+
+    public void createNewUser() {
+        LoginMenuView loginMenuView = new LoginMenuView();
         User user = new User();
         user.setUsername(usernameUpdate());
         user.setNickname(nicknameUpdate());
         user.setPassword(passwordUpdate());
-         if (isUserInfoValid) {
-        writeDataToFile(user);
+        readDataFromFile();
+        if (userInfoValidation() == 0) {
+
+            allUsers.add(user);
+            writeDataToFile(user);
+            loginMenuView.createNewUserSuccessMessage();
+        } else {
+            loginMenuView.userInfoValidationMessage(userInfoValidation());
         }
     }
 
-    public void isUserInfoValid() {
+    public int userInfoValidation() {
+        int flag = 0;
+
+        for (int i = 0; i < allUsers.size() - 1; i++) {
+
+            if ((allUsers.get(i).username).equals(allUsers.get(i + 1).username)) {
+                flag = 1;
+
+            }
+            if ((allUsers.get(i).password).equals(allUsers.get(i + 1).password)) {
+                flag = 2;
+
+            }
+            if ((allUsers.get(i).nickname).equals(allUsers.get(i + 1).nickname)) {
+                flag = 3;
+
+            }
+        }
+        return flag;
+    }
+
+    public int userLoginInfoValidation() {
+        int flag = 0;
+        for (int i = 0; i < allUsers.size() - 1; i++) {
+            if (userlogin.get("username").equals(allUsers.get(i))) {
+                if (userlogin.get("password").equals(allUsers.get(i))) {
+                    flag = 1;
+                }
+            }
+        }
+        return flag;
+    }
+
+    public void createUser() {
+        LoginMenuView loginMenuView = new LoginMenuView();
+        User currentUser = new User();
+        currentUser.setUsername(usernameUpdate());
+        currentUser.setNickname(nicknameUpdate());
+        currentUser.setPassword(passwordUpdate());
 
     }
+
+
 }

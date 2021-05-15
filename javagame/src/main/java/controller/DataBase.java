@@ -15,8 +15,12 @@ import java.util.HashMap;
 
 
 public class DataBase {
-    User currentUser = new User(); //should be deleted
-    HashMap<String, String> userlogin = new HashMap<String, String>();
+    // User currentUser = new User(); //should be deleted
+    // LoginMenuView loginMenuView = new LoginMenuView();
+    HashMap<String, String> userlogin = new HashMap<>();
+    String username;
+    String password;
+    String nickname;
     static ArrayList<User> allUsers = new ArrayList<User>();
     Gson gson = new Gson();
 
@@ -28,6 +32,7 @@ public class DataBase {
         } catch (IOException e) {
             e.printStackTrace();
         }
+
     }
 
     public void readDataFromFile() {
@@ -40,21 +45,29 @@ public class DataBase {
         } catch (IOException e) {
             e.printStackTrace();
         }
+
     }
 
     public void usersLogInUpdate() {
         createUser();
+
         readDataFromFile();
         if (userLoginInfoValidation() == 1) {
+            System.out.println(createUser().userMenuPosition);
             LoginMenuView loginMenuView = new LoginMenuView();
+
+
             loginMenuView.userLoginSuccessMessage();
+        } else {
+            LoginMenuView loginMenuView = new LoginMenuView();
+            loginMenuView.userLoginFailleMessage();
         }
 
     }
 
     public void extractUserInformation(String command) {
         command = command.replaceAll("\\s", "");
-        HashMap<String, String> userlogin = new HashMap<String, String>();
+        HashMap<String, String> userlogin = new HashMap<>();
         String[] b = (command.split("--"));
 
 
@@ -66,25 +79,29 @@ public class DataBase {
 
 
         }
+        username = userlogin.get("username");
+        password = userlogin.get("password");
+        nickname = userlogin.get("nickname");
+
 
     }
 
 
     public String usernameUpdate() {
-        return userlogin.get("username");
+        return username;
 
 
     }
 
 
     public String passwordUpdate() {
-        return userlogin.get("password");
+        return password;
 
 
     }
 
     public String nicknameUpdate() {
-        return userlogin.get("nickname");
+        return nickname;
 
     }
 
@@ -92,24 +109,21 @@ public class DataBase {
 
     }
 
+
     public boolean isCreateUserCommandValid(String command) {
         command = command.toLowerCase().replaceAll("\\s", "");
-        if (command.startsWith("usercreate") &&
-                (userlogin.containsKey("username")) &&
-                (userlogin.containsKey("password")) &&
-                (userlogin.containsKey("nickname"))) {
-            return true;
-        } else {
-            return false;
-        }
+        return command.startsWith("usercreate") &&
+                ((command.indexOf("username") != -1) || (command.indexOf("u") != -1)) &&
+                (((command.indexOf("password") != -1)) || (command.indexOf("p") != -1)) &&
+                (((command.indexOf("nickname") != -1)) || (command.indexOf("n") != 1));
 
     }
 
     public boolean isUserLoginCommandValid(String command) {
         command = command.toLowerCase().replaceAll("\\s", "");
         if (command.startsWith("userlogin") &&
-                (userlogin.containsKey("username")) &&
-                (userlogin.containsKey("password"))
+                (command.indexOf("username") != -1) &&
+                (command.indexOf("password") != -1)
         ) {
             return true;
         } else {
@@ -118,12 +132,23 @@ public class DataBase {
 
     }
 
-    public void createNewUser() {
+    public boolean isUserLogoutCommandValid(String command) {
+        command = command.toLowerCase().replaceAll("\\s", "");
+        if (command.startsWith("userlogout")) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    public User createNewUser() {
         LoginMenuView loginMenuView = new LoginMenuView();
+
         User user = new User();
         user.setUsername(usernameUpdate());
         user.setNickname(nicknameUpdate());
         user.setPassword(passwordUpdate());
+        user.setUserMenuPosition("Login Menu");
         readDataFromFile();
         if (userInfoValidation() == 0) {
 
@@ -131,25 +156,23 @@ public class DataBase {
             writeDataToFile(user);
             loginMenuView.createNewUserSuccessMessage();
         } else {
-            loginMenuView.userInfoValidationMessage(userInfoValidation());
+            loginMenuView.userInfoValidationMessage(userInfoValidation(), username, nickname);
         }
+        return user;
     }
 
     public int userInfoValidation() {
         int flag = 0;
 
-        for (int i = 0; i < allUsers.size() - 1; i++) {
+        for (int i = 0; i < allUsers.size(); i++) {
 
-            if ((allUsers.get(i).username).equals(allUsers.get(i + 1).username)) {
+            if ((username).equals(allUsers.get(i).username)) {
                 flag = 1;
 
             }
-            if ((allUsers.get(i).password).equals(allUsers.get(i + 1).password)) {
-                flag = 2;
 
-            }
-            if ((allUsers.get(i).nickname).equals(allUsers.get(i + 1).nickname)) {
-                flag = 3;
+            if ((nickname).equals(allUsers.get(i).nickname)) {
+                flag = 2;
 
             }
         }
@@ -157,23 +180,27 @@ public class DataBase {
     }
 
     public int userLoginInfoValidation() {
+
         int flag = 0;
-        for (int i = 0; i < allUsers.size() - 1; i++) {
-            if (userlogin.get("username").equals(allUsers.get(i))) {
-                if (userlogin.get("password").equals(allUsers.get(i))) {
+        for (int i = 0; i < allUsers.size(); i++) {
+            if ((username).equals(allUsers.get(i).username)) {
+                if ((password).equals(allUsers.get(i).password)) {
                     flag = 1;
                 }
             }
         }
         return flag;
+
     }
 
-    public void createUser() {
+    public User createUser() {
         LoginMenuView loginMenuView = new LoginMenuView();
         User currentUser = new User();
         currentUser.setUsername(usernameUpdate());
         currentUser.setNickname(nicknameUpdate());
         currentUser.setPassword(passwordUpdate());
+        currentUser.setUserMenuPosition("Main Menu");
+        return currentUser;
 
     }
 

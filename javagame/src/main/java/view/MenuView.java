@@ -14,15 +14,15 @@ class MenuView {
 
      }
 
-     protected void exitMenu(object String) {
+     protected void exitMenu( String) {
 
      }
 
-     protected void enterMenu(object String) {
+     protected void enterMenu( String) {
 
      }
 
-     protected void showCurrentMenu(object String) {
+     protected void showCurrentMenu( String) {
 
      }
 

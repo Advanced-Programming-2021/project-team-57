@@ -1,26 +1,25 @@
 ﻿package view;
 
 import controller.DataBase;
+import controller.MenuController;
 import model.User;
-
-import java.util.Scanner;
 
 public class LoginMenuView extends MenuView {
     User user = new User(); //should be deleted
+    DataBase dataBase = new DataBase();
 
     public void CreateNewUserInput(String command) {
-        command = new Scanner(System.in).nextLine();
-        DataBase dataBase = new DataBase();
+
+
         if (dataBase.isCreateUserCommandValid(command)) {
             dataBase.extractUserInformation(command);
             dataBase.createNewUser();
 
         } else {
+            command = command.toLowerCase().replaceAll("\\s", "");
             if ((command.startsWith("menu enter") &&
-                    command.contains("<login>"))) {
+                    command.indexOf("main") != -1)) {
                 System.out.println("please login first");
-            } else {
-                System.out.println("invalid command");
             }
         }
     }
@@ -30,26 +29,37 @@ public class LoginMenuView extends MenuView {
     }
 
     public void logIn(String command) {
-        command = new Scanner(System.in).nextLine();
+        // command = new Scanner(System.in).nextLine();
         if (command.startsWith("user login")) {
-            DataBase dataBase = new DataBase();
+
             if (dataBase.isUserLoginCommandValid(command)) {
+
                 dataBase.extractUserInformation(command);
                 dataBase.usersLogInUpdate();
             }
         }
     }
+    public void logoutInput(String command){
+        if(dataBase.isUserLogoutCommandValid(command)){
+            MenuController menuController= new MenuController();
+            menuController.logout(dataBase.createUser());
+        }
+    }
 
-    public void userInfoValidationMessage(int flag) {
+    public void userInfoValidationMessage(int flag, String username, String nickname) {
+
         if (flag == 1) {
-            System.out.println("user with username" + user.username + "already exist");
+            System.out.println("user with username " + username + " already exist");
         }
+
         if (flag == 2) {
-            System.out.println("user with password" + user.password + "already exist");
+            System.out.println("user with nickname " + nickname + " already exist");
         }
-        if (flag == 3) {
-            System.out.println("user with nickname" + user.nickname + "already exist");
-        }
+    }
+
+
+    public void userLoginFailleMessage() {
+        System.out.println("username and password didn't match!");
     }
 
     public void userLoginSuccessMessage() {
